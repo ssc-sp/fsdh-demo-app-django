@@ -32,7 +32,7 @@ jobs:
           context: .
           push: true
           # GHCR strictly requires lowercase package tags
-          tags: ghcr.io/astraloversight/astervis:latest
+          tags: ghcr.io/ssc-sp/fsdh-demo-app-django:latest
 
       - name: Logout of GHCR
         run: docker logout ghcr.io
