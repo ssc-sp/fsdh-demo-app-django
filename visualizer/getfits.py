@@ -37,11 +37,12 @@ class FileSet:
         hd = ("✅", "❌")[self.cord is None]
         return "(" + self.f_path + " & " + self.base_name + " | R:" + hr + " C:" + hc + " D:" + hd + ")"
 
-
+# A function that will search a location when it is added.
 def on_location_added(sender, instance, created, **kwargs):
     if created: threading.Thread(target=all_from_site, args=(instance,)).start()
 signals.post_save.connect(on_location_added, sender=ObsLocation)
 
+# Searches the location and finds all sets.
 def all_from_site(location:ObsLocation):
     print("Location requested: "+location.__str__())
     with ftputil.FTPHost(location.domain, "anonymous", "") as ftp:
@@ -49,6 +50,9 @@ def all_from_site(location:ObsLocation):
 
     save_sets(all_sets, location)
 
+# Finds all the sets in the given path.
+# Calls recursively.
+# Returns all the filesets that it finds.
 def get_from_path(ftp:ftputil.FTPHost, domain:str, f_path:str, wait_time=0.5):
     print(f_path)
     filesets = []
@@ -62,6 +66,8 @@ def get_from_path(ftp:ftputil.FTPHost, domain:str, f_path:str, wait_time=0.5):
 
     return filesets + sort_into_sets(files)
 
+# Sorts files into sets.
+# Expects files to be formated like: Raw:[NAME].fits.gz, Cor:[NAME]_cor.fits.gz and Cord:[NAME]_cord.fits.gz
 def sort_into_sets(files):
     sets = []
     for f in files:
@@ -89,6 +95,7 @@ def sort_into_sets(files):
 
     return sets
 
+# Creates an ObservationSet entry for each set given.
 def save_sets(sets, location:ObsLocation):
     for s in sets:
         strtime = s.base_name.split("_")[2]
@@ -110,6 +117,8 @@ def save_sets(sets, location:ObsLocation):
         )
         obset.save()
 
+# "Prepares" the file by downloading it and saving it's header.
+# Will not do it if the header is already stored.
 def prep_file(obs_set:ObservationSet, obs_type:ObsType, overwrite:bool=False): # ftp://data.asc-csa.gc.ca/users/OpenData_DonneesOuvertes/pub/NEOSSAT/ASTRO/2026/109/NEOS_SCI_2026109004941_cord.fits.gz
     if not obs_set.header:
         with FITS.open("ftp://" + obs_set.location.domain + obs_set.f_path + "/" + obs_set.name + obs_type, use_fsspec=True, memmap=False) as hdul:
@@ -119,6 +128,7 @@ def prep_file(obs_set:ObservationSet, obs_type:ObsType, overwrite:bool=False): #
         obs_set.header = obs
         obs_set.save()
 
+# Streams the desired file/observation
 def stream_file(obs_set:ObservationSet, obs_type:ObsType) -> BytesIO:
     with ftputil.FTPHost(obs_set.location.domain, "anonymous", "") as ftp:
         with ftp.open(obs_set.f_path + "/" + obs_set.name + obs_type, mode="rb") as ftp_file:
@@ -126,6 +136,8 @@ def stream_file(obs_set:ObservationSet, obs_type:ObsType) -> BytesIO:
     fs.seek(0)
     return fs
 
+# Creates a ObsHeader from the raw header.
+# Does not save it.
 def create_header(header) -> ObsHeader:
     return ObsHeader(
         bitpix = header['BITPIX'],

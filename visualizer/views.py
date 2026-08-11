@@ -17,6 +17,7 @@ def set(request, obs_name):
 
 def get(request, obs_name):
     obs_set = get_object_or_404(ObservationSet, name=obs_name)
+    # Which observation to grab.
     match request.GET["obs"]:
         case "COR":
             obs_type = getfits.ObsType.COR
@@ -24,6 +25,7 @@ def get(request, obs_name):
             obs_type = getfits.ObsType.CORD
         case "RAW" | _:
             obs_type = getfits.ObsType.RAW
+    # Stream that observation
     content_type, encoding = guess_type(obs_set.name + obs_type)
     content_type = content_type or "application/octet-stream"
     response = FileResponse(getfits.stream_file(obs_set, obs_type), content_type=content_type)

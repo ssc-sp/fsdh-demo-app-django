@@ -24,8 +24,8 @@ from os import environ
 from . import views
 
 urlpatterns = [
-    path(f'', views.page, name="home"),
-    path(f'search/', include("search.urls")),
+    path(f'', views.home, name="home"),
+    path(f'search/', views.search, name="search"),
     path(f'visualizer/', include("visualizer.urls")),
     path(f'admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS)

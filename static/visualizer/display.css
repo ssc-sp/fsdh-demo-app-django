@@ -1,0 +1,24 @@
+.histogram-region {
+  padding: 5px 0px;
+  display: grid;
+  grid-template-columns: min-content 250px;
+  canvas {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 1;
+    grid-row-end: 3;
+  }
+  .histogram-info {
+    border-radius: 5px;
+    border: 10px solid var(--border-color);
+    border-style: inset;
+    margin-left: 10px;
+    padding: 5px;
+  }
+  .histogram-highlight {
+    padding-top: auto;
+  }
+  button {
+    padding: 10px;
+  }
+}

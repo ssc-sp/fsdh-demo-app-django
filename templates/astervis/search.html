@@ -2,12 +2,12 @@
 
 {% block content %}
     <script>
-        const baseURL = "{% url 'search-base' %}";
+        const baseURL = "{% url 'search' %}";
         const fieldGroups = JSON.parse('{{ fields|safe }}');
         const opTypes = JSON.parse('{{ ops|safe }}');
     </script>
     {% load static %}
-    <script src="{% static 'visualizer/search.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'astervis/search.js' %}" type="text/javascript" charset="utf-8"></script>
     <h1>Search for observations</h1>
     <table>
         <thead>
@@ -62,11 +62,6 @@
             </tr>
         </thead>
         <tbody>
-            <!--<tr>
-                <td>
-                    {{ obs_len }}
-                </td>
-            </tr>-->
             {% if observation_list %}
                 {% for observation in observation_list %}
                 <tr>
