@@ -34,7 +34,7 @@ Prerequisites:
 Steps:
 1. In the FSDH, obtain the Web App and SQL Database tools
 2. In the Web App configuration, do the following:
-    - Enter the Git repo URL (https://github.com/AstralOversight/astervis.git) and Docker compose file path (`docker-compose-az.yml`)
+    - Enter the Git repo URL (https://github.com/ssc-sp/fsdh-demo-app-django.git) and Docker compose file path (`docker-compose-az.yml`)
     - Activate URL rewriting
     - Add the Environment variables found in the `.env-blank` file to the Web App
         - Make sure to adjust them as needed
