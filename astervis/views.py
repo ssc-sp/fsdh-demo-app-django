@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from visualizer.models import ObservationSet, ObsHeader
+from visualizer.getfits import get_status, set_status
 from django.db.models import fields, ManyToOneRel, Q
 
 specialTerms = ["page"]
@@ -80,7 +81,8 @@ def index(request):
     return HttpResponse("Hello, you are at the index.")
 
 def home(request):
-    return render(request, "astervis/home.html")
+    context = {"fitsstatus": get_status()}
+    return render(request, "astervis/home.html", context)
 
 def search(request):
     # Create the filters for the query (we're starting with just a blank one)
@@ -106,11 +108,16 @@ def search(request):
             # Add to the filter key the filter we are using
             key += "__" + operations[type_code][op][1]
             # Fix the value's formatting if it needs adjusting
-            match type_code:
-                case "d":
-                    value = " ".join(value.split("T"))
-                case "b":
-                    value = True if (value == "on" or value == "true") else False
+            try:
+                match type_code:
+                    case "n":
+                        value = float(value)
+                    case "d":
+                        value = " ".join(value.split("T"))
+                    case "b":
+                        value = True if (value == "on" or value == "true") else False
+            except:
+                break
 
             # Add the filter, if it needs to be inverted, do that too.
             if (operations[type_code][op][2]):

@@ -3,6 +3,3 @@ astervis/__pycache__
 
 # The static files generated for the server.
 staticfiles
-
-# Yeah, I'm not sharing this
-.env

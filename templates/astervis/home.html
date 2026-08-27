@@ -2,6 +2,12 @@
 
 {% block content %}
     <h1>Welcome to Astervis!</h1>
-    <p>By heading to the <a href="{% url 'search-base' %}">Search Page</a> you can go and find observations made by the NEOS Satellite.</p>
+    <p>By heading to the <a href="{% url 'search' %}">Search Page</a> you can go and find observations made by the NEOS Satellite.</p>
     <p>You can view and adjust a specific observation by going to it's page.</p>
+    {% if fitsstatus %}
+        <div class="status">
+            <p>Currently importing new data:</p>
+            <p>{{ fitsstatus }}</p>
+        </div>
+    {% endif %}
 {% endblock %}

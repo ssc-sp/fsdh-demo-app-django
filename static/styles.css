@@ -5,6 +5,7 @@
   --base-bg-color: light-dark(lavender, midnightblue);
   --border-color: light-dark(darkslateblue, slateblue);
   --notable-bg-color: light-dark(rgb(213, 186, 221), rgb(79, 35, 94));
+  --status-color: light-dark(gold, goldenrod);
 }
 
 header,
@@ -34,6 +35,12 @@ body {
     padding-top: 10px;
     text-align: left;
   }
+}
+
+.status {
+  padding: 5px 5px;
+  border-radius: 5px;
+  background-color: var(--status-color);
 }
 
 hr {
@@ -67,11 +74,11 @@ table {
 
 tbody > tr:nth-of-type(odd),
 details li:nth-of-type(odd) {
-  background-color: var(--alt-bg-color);/*ghostwhite; lavenderblush; mintcream; lightcyan*/
+  background-color: var(--alt-bg-color);
 }
 tbody > tr:nth-of-type(even),
 details li:nth-of-type(even) {
-  background-color: var(--base-bg-color);/*ghostwhite; lavenderblush; mintcream; lightcyan*/
+  background-color: var(--base-bg-color);
 }
 
 thead,

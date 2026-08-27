@@ -160,15 +160,15 @@ function histogram() {
     var queue = []
     
     // Trace graph
-    var tickCount = 24;
+    var distPix = 35;
     ctx.beginPath();
     ctx.moveTo(0, canvas.height-buffer);
     for (let i = 0; i < values.length; i++) {
         ctx.lineTo(i*canvas.width/values.length, canvas.height-(values[i][1]*(canvas.height-buffer)/max)-buffer);
         // Current level text & tick
-        if (i % (2*Math.floor(values.length/tickCount)) == 0) ctx.fillText(parseInt(values[i][0])+mapMin, (i*canvas.width/values.length)+2, canvas.height-1)
-        if (i % (2*Math.floor(values.length/tickCount)) == Math.floor(values.length/tickCount)) ctx.fillText(parseInt(values[i][0])+mapMin, (i*canvas.width/values.length)+2, canvas.height-Math.floor(histo.buffer/2)-1)
-        if (i % Math.floor(values.length/tickCount) == 0) ctx.fillRect(i*canvas.width/values.length, canvas.height-buffer, 1, buffer);
+        if (i % (2*Math.floor(values.length/canvas.width*distPix)) == 0) ctx.fillText(parseInt(values[i][0])+mapMin, (i*canvas.width/values.length)+2, canvas.height-1)
+        if (i % (2*Math.floor(values.length/canvas.width*distPix)) == Math.floor(values.length/canvas.width*distPix)) ctx.fillText(parseInt(values[i][0])+mapMin, (i*canvas.width/values.length)+2, canvas.height-Math.floor(histo.buffer/2)-1)
+        if (i % Math.floor(values.length/canvas.width*distPix) == 0) ctx.fillRect(i*canvas.width/values.length, canvas.height-buffer, 1, buffer);
 
         // Add to queue the bars for the dark & light zones.
         if (i+1 < values.length && ((parseInt(values[i][0]) <= dark_range.value-mapMin && parseInt(values[i+1][0]) > dark_range.value-mapMin)

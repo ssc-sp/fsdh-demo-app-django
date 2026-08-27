@@ -27,7 +27,7 @@
             }
         }
 
-        fetch("{% url 'get-obs' set.name %}?obs="+params.get("obs"), { cache: "force-cache" })
+        fetch("{% url 'get-obs' set.name %}?obs="+(params.get("obs") || "RAW"), { cache: "force-cache" })
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Could not load FITS file: " + response.status);
