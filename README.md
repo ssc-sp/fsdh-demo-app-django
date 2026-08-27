@@ -22,6 +22,7 @@ Adding observations:
 2. Log in using those credentials at https://localhost/admin/
 3. Click the button to add an observation location
     - The Domain should be something like `data.asc-csa.gc.ca` and the "S path" would be like `/users/OpenData_DonneesOuvertes/pub/NEOSSAT/ASTRO/2026`
+    - Note: Due to changes in the header format sometime in 2024, observations taken before then may have values that are either missing or inaccessible from the search function.
 4. Wait a bit (depends on how many folders/sub-folders exist)
 5. Return to the main site and view all the observations
 
@@ -48,5 +49,6 @@ Adding observations:
 2. Log in using those credentials at [Site here]/admin/
 3. Click the button to add an observation location
     - The Domain should be something like `data.asc-csa.gc.ca` and the "S path" would be like `/users/OpenData_DonneesOuvertes/pub/NEOSSAT/ASTRO/2026`
+    - Note: Due to changes in the header format sometime in 2024, observations taken before then may have values that are either missing or inaccessible from the search function.
 4. Wait a bit (depends on how many folders/sub-folders exist)
 5. Return to the main site and view all the observations
