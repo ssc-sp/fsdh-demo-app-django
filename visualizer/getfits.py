@@ -10,9 +10,9 @@ import datetime
 status = ""
 
 class ObsType:
-    RAW = ".fits.gz"
-    COR = "_cor.fits.gz"
-    CORD = "_cord.fits.gz"
+    RAW = "."
+    COR = "_cor."
+    CORD = "_cord."
 
 class FileRef:
     def __init__(self, domain:str, f_path:str, name:str):
@@ -136,7 +136,9 @@ def save_sets(sets, location:ObsLocation):
 # Will not do it if the header is already stored.
 def prep_file(obs_set:ObservationSet, obs_type:ObsType, overwrite:bool=False): # ftp://data.asc-csa.gc.ca/users/OpenData_DonneesOuvertes/pub/NEOSSAT/ASTRO/2026/109/NEOS_SCI_2026109004941_cord.fits.gz
     if not obs_set.header:
-        with FITS.open("ftp://" + obs_set.location.domain + obs_set.f_path + "/" + obs_set.name + obs_type, use_fsspec=True, memmap=False) as hdul:
+        with ftputil.FTPHost(obs_set.location.domain, "anonymous", "") as ftp:
+            file_name = [file for file in ftp.listdir(obs_set.f_path) if ((obs_set.name + obs_type) in file)][0]
+        with FITS.open("ftp://" + obs_set.location.domain + obs_set.f_path + "/" + file_name, use_fsspec=True, memmap=False) as hdul:
             header = hdul[0].header
         obs = create_header(header)
         obs.save()
@@ -144,111 +146,112 @@ def prep_file(obs_set:ObservationSet, obs_type:ObsType, overwrite:bool=False): #
         obs_set.save()
 
 # Streams the desired file/observation
-def stream_file(obs_set:ObservationSet, obs_type:ObsType) -> BytesIO:
+def stream_file(obs_set:ObservationSet, obs_type:ObsType) -> tuple[BytesIO, str]:
     with ftputil.FTPHost(obs_set.location.domain, "anonymous", "") as ftp:
-        with ftp.open(obs_set.f_path + "/" + obs_set.name + obs_type, mode="rb") as ftp_file:
+        file_name = [file for file in ftp.listdir(obs_set.f_path) if ((obs_set.name + obs_type) in file)][0]
+        with ftp.open(obs_set.f_path + "/" + file_name, mode="rb") as ftp_file:
             fs = BytesIO(ftp_file.read())
     fs.seek(0)
-    return fs
+    return (fs, file_name)
 
 # Creates a ObsHeader from the raw header.
 # Does not save it.
 def create_header(header) -> ObsHeader:
     return ObsHeader(
-        bitpix = header['BITPIX'],
-        naxis = header['NAXIS'],
-        naxis1 = header['NAXIS1'],
-        naxis2 = header['NAXIS2'],
-        extend = header['EXTEND'],
-        bscale = header['BSCALE'],
-        bzero = header['BZERO'],
+        bitpix = header.get('BITPIX', default=0),
+        naxis = header.get('NAXIS', default=0),
+        naxis1 = header.get('NAXIS1', default=0),
+        naxis2 = header.get('NAXIS2', default=0),
+        extend = header.get('EXTEND', default=False),
+        bscale = header.get('BSCALE', default=float("nan")),
+        bzero = header.get('BZERO', default=0),
         # Image
-        biassec = header['BIASSEC'],
-        trimsec = header['TRIMSEC'],
-        datasec = header['DATASEC'],
-        ccdsec = header['CCDSEC'],
-        gain = header['GAIN'],
-        rdnoise = header['RDNOISE'],
-        filter = header['FILTER'],
-        waveleng = header['WAVELENG'],
-        bandpass = header['BANDPASS'],
-        xbinning = header['XBINNING'],
-        ybinning = header['YBINNING'],
-        compr_al = header['COMPR_AL'],
-        comp_set = header['COMP_SET'],
-        n_subimg = header['N_SUBIMG'],
-        overscan = header['OVERSCAN'],
-        creator = header['CREATOR'],
-        telescop = header['TELESCOP'],
-        shutter = header['SHUTTER'],
-        shut_age = header['SHUT_AGE'],
-        detector = header['DETECTOR'],
+        biassec = header.get('BIASSEC', default="null"),
+        trimsec = header.get('TRIMSEC', default="null"),
+        datasec = header.get('DATASEC', default="null"),
+        ccdsec = header.get('CCDSEC', default="null"),
+        gain = header.get('GAIN', default=float("nan")),
+        rdnoise = header.get('RDNOISE', default=float("nan")),
+        filter = header.get('FILTER', default="null"),
+        waveleng = header.get('WAVELENG', default=0),
+        bandpass = header.get('BANDPASS', default="null"),
+        xbinning = header.get('XBINNING', default=0),
+        ybinning = header.get('YBINNING', default=0),
+        compr_al = header.get('COMPR_AL', default="null"),
+        comp_set = header.get('COMP_SET', default="null"),
+        n_subimg = header.get('N_SUBIMG', default=0),
+        overscan = header.get('OVERSCAN', default=0),
+        creator = header.get('CREATOR', default="null"),
+        telescop = header.get('TELESCOP', default="null"),
+        shutter = header.get('SHUTTER', default="null"),
+        shut_age = header.get('SHUT_AGE', default=float("nan")),
+        detector = header.get('DETECTOR', default="null"),
         # Timing
-        timesys = header['TIMESYS'],
-        exposure = header['EXPOSURE'],
-        aexptime = header['AEXPTIME'],
-        rexptime = header['REXPTIME'],
-        date_obs = header['DATE-OBS'],
-        time_obs = header['TIME-OBS'],
-        r_exp_s = header['R_EXP_S'],
-        a_exp_s = header['A_EXP_S'],
-        len_flu = header['LEN_FLU'],
-        len_tran = header['LEN_TRAN'],
-        len_read = header['LEN_READ'],
-        len_proc = header['LEN_PROC'],
-        lendelay = header['LENDELAY'],
-        len_save = header['LEN_SAVE'],
+        timesys = header.get('TIMESYS', default="null"),
+        exposure = header.get('EXPOSURE', default=float("nan")),
+        aexptime = header.get('AEXPTIME', default=float("nan")),
+        rexptime = header.get('REXPTIME', default=float("nan")),
+        date_obs = header.get('DATE-OBS', default=float("nan")),
+        time_obs = header.get('TIME-OBS', default=float("nan")),
+        r_exp_s = header.get('R_EXP_S', default=float("nan")),
+        a_exp_s = header.get('A_EXP_S', default=float("nan")),
+        len_flu = header.get('LEN_FLU', default=float("nan")),
+        len_tran = header.get('LEN_TRAN', default=float("nan")),
+        len_read = header.get('LEN_READ', default=float("nan")),
+        len_proc = header.get('LEN_PROC', default=float("nan")),
+        lendelay = header.get('LENDELAY', default=float("nan")),
+        len_save = header.get('LEN_SAVE', default=float("nan")),
         # Pointing
-        equinox = header['EQUINOX'],
-        mode = header['MODE'],
-        modetime = header['MODETIME'],
-        cmd = header['CMD'],
-        cmdra = header['CMDRA'],
-        cmddec = header['CMDDEC'],
-        cmdrol = header['CMDROL'],
-        cmdq0 = header['CMDQ0'],
-        cmdq1 = header['CMDQ1'],
-        cmdq2 = header['CMDQ2'],
-        cmdq3 = header['CMDQ3'],
-        ra = header['RA'],
-        dec = header['DEC'],
-        objctra = header['OBJCTRA'],
-        objctdec = header['OBJCTDEC'],
-        objctrol = header['OBJCTROL'],
-        ela_min = header['ELA_MIN'],
-        ela_max = header['ELA_MAX'],
-        ela_ang = header['ELA_ANG'],
-        sun_min = header['SUN_MIN'],
-        sun_max = header['SUN_MAX'],
-        hist_nb = header['HIST_NB'],
-        avg_vel = header['AVG_VEL'],
-        ra_vel = header['RA_VEL'],
-        dec_vel = header['DEC_VEL'],
-        rol_vel = header['ROL_VEL'],
+        equinox = header.get('EQUINOX', default=float("nan")),
+        mode = header.get('MODE', default="null"),
+        modetime = header.get('MODETIME', default=float("nan")),
+        cmd = header.get('CMD', default="null"),
+        cmdra = header.get('CMDRA', default="null"),
+        cmddec = header.get('CMDDEC', default="null"),
+        cmdrol = header.get('CMDROL', default=float("nan")),
+        cmdq0 = header.get('CMDQ0', default=float("nan")),
+        cmdq1 = header.get('CMDQ1', default=float("nan")),
+        cmdq2 = header.get('CMDQ2', default=float("nan")),
+        cmdq3 = header.get('CMDQ3', default=float("nan")),
+        ra = header.get('RA', default="null"),
+        dec = header.get('DEC', default="null"),
+        objctra = header.get('OBJCTRA', default="null"),
+        objctdec = header.get('OBJCTDEC', default="null"),
+        objctrol = header.get('OBJCTROL', default=float("nan")),
+        ela_min = header.get('ELA_MIN', default=float("nan")),
+        ela_max = header.get('ELA_MAX', default=float("nan")),
+        ela_ang = header.get('ELA_ANG', default=float("nan")),
+        sun_min = header.get('SUN_MIN', default=float("nan")),
+        sun_max = header.get('SUN_MAX', default=float("nan")),
+        hist_nb = header.get('HIST_NB', default=0),
+        avg_vel = header.get('AVG_VEL', default=float("nan")),
+        ra_vel = header.get('RA_VEL', default=float("nan")),
+        dec_vel = header.get('DEC_VEL', default=float("nan")),
+        rol_vel = header.get('ROL_VEL', default=float("nan")),
         # Environment Data
-        temp_ccd = header['TEMP_CCD'],
-        ccdt_nb = header['CCDT_NB'],
-        temp_roe = header['TEMP_ROE'],
-        temp_amp = header['TEMP_AMP'],
-        temp_pld = header['TEMP_PLD'],
+        temp_ccd = header.get('TEMP_CCD', default=float("nan")),
+        ccdt_nb = header.get('CCDT_NB', default=0),
+        temp_roe = header.get('TEMP_ROE', default=float("nan")),
+        temp_amp = header.get('TEMP_AMP', default=float("nan")),
+        temp_pld = header.get('TEMP_PLD', default=float("nan")),
         # Mission Planning Section
-        object = header['OBJECT'],
-        observer = header['OBSERVER'],
-        intent = header['INTENT'],
-        instrume = header['INSTRUME'],
-        targtype = header['TARGTYPE'],
-        prop_id = header['PROP_ID'],
-        pi_name = header['PI_NAME'],
-        title = header['TITLE'],
-        moving = header['MOVING'],
-        m2 = header['M2'],
-        geo_lat = header['GEO_LAT'],
-        geo_long = header['GEO_LONG'],
+        object = header.get('OBJECT', default="null"),
+        observer = header.get('OBSERVER', default="null"),
+        intent = header.get('INTENT', default="null"),
+        instrume = header.get('INSTRUME', default="null"),
+        targtype = header.get('TARGTYPE', default="null"),
+        prop_id = header.get('PROP_ID', default="null"),
+        pi_name = header.get('PI_NAME', default="null"),
+        title = header.get('TITLE', default="null"),
+        moving = header.get('MOVING', default="null"),
+        m2 = header.get('M2', default="null"),
+        geo_lat = header.get('GEO_LAT', default="null"),
+        geo_long = header.get('GEO_LONG', default="null"),
         # Diagnostic
-        imgstate = header['IMGSTATE'],
+        imgstate = header.get('IMGSTATE', default="null"),
         # Calibration
-        archive = header['ARCHIVE'],
-        obs_type = header['OBSTYPE'],
-        obs_id = header['OBS_ID'],
+        archive = header.get('ARCHIVE', default="null"),
+        obs_type = header.get('OBSTYPE', default="null"),
+        obs_id = header.get('OBS_ID', default="null"),
     )
         
