@@ -1,10 +1,10 @@
 :root {
   color-scheme: light dark;
 
-  --alt-bg-color: light-dark(whitesmoke, darkslateblue);
-  --base-bg-color: light-dark(lavender, midnightblue);
-  --border-color: light-dark(darkslateblue, slateblue);
-  --notable-bg-color: light-dark(rgb(213, 186, 221), rgb(79, 35, 94));
+  --alt-bg-color: light-dark(whitesmoke, rgb(81, 76, 110));
+  --base-bg-color: light-dark(rgb(221, 221, 230), rgb(49, 49, 80));
+  --border-color: light-dark(darkslateblue, rgb(105, 98, 150));
+  --notable-bg-color: light-dark(rgb(213, 186, 221), rgb(66, 46, 73));
   --status-color: light-dark(gold, goldenrod);
 }
 
